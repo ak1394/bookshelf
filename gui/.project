@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>gui</name>
+	<comment></comment>
+	<projects>
+		<project>core</project>
+		<project>reader</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>net.redrobin.eclipse.jydt.core.jythonBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>net.redrobin.eclipse.jydt.core.jythonNature</nature>
+	</natures>
+</projectDescription>

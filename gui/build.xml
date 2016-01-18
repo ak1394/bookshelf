@@ -1,0 +1,50 @@
+<project name="gui" default="dist" basedir=".">
+    <property environment="env"/>
+    <property name="src.dir" value="src"/>
+    <property name="src.properties" value="properties"/>
+    <property name="src.images" value="images"/>
+
+    <property name="build.dir" value="build"/>
+    <property name="build.properties" value="${build.dir}/properties"/>
+
+    <property name="tokens.file" value="../token.properties"/>
+
+    <target name="prepare-common">
+        <fail unless="output.directory">Please set output.directory property</fail>
+        <mkdir dir="${build.properties}"/>
+        <mkdir dir="${output.directory}"/>
+    </target>
+
+    <target name="prepare-src" depends="prepare-common">
+        <!-- copy property files -->
+        <copy todir="${build.properties}">
+            <fileset dir="${src.properties}" excludes="**/CVS* **/*.class **/.#* **/*.native2ascii"/>
+        </copy>
+
+        <!-- transform native strings to unicode -->
+    	<native2ascii encoding="windows-1251" src="${src.properties}" dest="${build.properties}"
+    		includes="**/*_ru.native2ascii" ext=".properties"/>
+
+    	<native2ascii encoding="ISO-8859-1" src="${src.properties}" dest="${build.properties}"
+    		includes="**/*_fr.native2ascii" ext=".properties"/>
+
+    	<native2ascii encoding="ISO-8859-2" src="${src.properties}" dest="${build.properties}"
+    		includes="**/*_ro.native2ascii" ext=".properties"/>
+    </target>
+
+    <target name="dist" depends="prepare-src">
+        <copy todir="${output.directory}/py">
+            <fileset dir="${src.dir}"/>
+        </copy>
+        <copy todir="${output.directory}/py/properties">
+            <fileset dir="${build.properties}"/>
+        </copy>
+        <!--copy todir="${output.directory}/py/images">
+            <fileset dir="${src.images}"/>
+        </copy-->
+	</target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+	</target>
+</project>

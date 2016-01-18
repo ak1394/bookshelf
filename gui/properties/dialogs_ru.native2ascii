@@ -1,0 +1,51 @@
+phone_model_title=Выберите модель телефона
+brand=Производитель
+model=Модель
+platform=Платформа
+description=Описание
+
+phone_settings_title=Настройки телефона
+rotate_screen=Развернуть Экран
+
+interface_title=Настройки интерфейса
+text_input_title=Параметры исходных текстовых файлов
+output_title=Настройки форматирования текста
+midlet_language=Язык мидлета
+
+open_dir=Папка с текстовыми файлами
+save_dir=Папка для сохранения мидлетов
+make_dir=Создавать папку для мидлета
+
+discard=Отменить
+cancel=Отменить
+save=Сохранить
+select=Выбрать
+
+settings_save_title=Сохранить изменения?
+settings_save_message=Вы изменили настройки.\nЧтобы принять изменения, подтвердите Ваш выбор\nи перезапустите @@PRODUCT@@.
+settings_save_message_no_restart=Вы уверены?
+
+plugin_add=Добавить
+plugin_remove=Удалить
+plugin_available=Доступные
+plugin_selected=Установленые
+plugin_title=Настройка плагинов
+plugin_description=Описание плагина
+plugin_size=Размер:
+bytes=байт
+total=всего
+
+font_import_title=Импортировать шрифт
+select_font=Выбрать шрифт
+antialiased=Сглаженый
+normal=Нормальный
+subpixel=Субпиксельный
+subpixel_aa=Субпиксельный сглаженый
+import=Импортировать
+select=Выбрать
+no_font_selected=Шрифт не выбран
+font_name=Название шрифта
+
+font_delete_title=Удалить шрифт
+delete=Удалить
+font_delete_confirmation=Вы уверены, что хотите удалить выбраный шрифт?

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="/reader"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JYTHON_HOME/jython.jar"/>
+	<classpathentry kind="var" path="BCEL_HOME/bcel-5.1.jar"/>
+	<classpathentry kind="var" path="ANT_HOME/lib/ant.jar"/>
+	<classpathentry kind="var" path="FOP_HOME/build/fop.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

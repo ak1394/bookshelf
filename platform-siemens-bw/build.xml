@@ -1,0 +1,12 @@
+<project name="siemens-bw" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.SIEMENS_HOME}/lib/API.jar" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.SIEMENS_HOME}/lib/API.jar"/>
+
+        <path id="platform.libs">
+        </path>
+    </target>
+</project>

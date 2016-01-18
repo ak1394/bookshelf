@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="/reader"/>
+	<classpathentry kind="var" path="WTK_HOME/lib/cldcapi10.jar"/>
+	<classpathentry kind="var" path="WTK_HOME/lib/midpapi20.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

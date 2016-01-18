@@ -1,0 +1,12 @@
+<project name="samsung1" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.SAMSUNG_HOME}/lib/SamsungApi.jar" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.SAMSUNG_HOME}/lib/SamsungApi.jar"/>
+
+        <path id="platform.libs">
+        </path>
+    </target>
+</project>

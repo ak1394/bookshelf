@@ -1,0 +1,13 @@
+<project name="nec2" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.WTK_HOME}/lib/midpapi20.jar" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.WTK_HOME}/lib/cldcapi10.jar"/>
+
+        <path id="platform.libs">
+            <pathelement path="${env.WTK_HOME}/lib/midpapi20.jar"/>
+        </path>
+    </target>
+</project>

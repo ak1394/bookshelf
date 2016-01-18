@@ -1,0 +1,33 @@
+menu_file=Файл
+item_open=Открыть
+item_save=Сохранить Мидлет
+item_close=Закрыть
+item_exit=Выход
+
+menu_settings=Настройки
+item_phone=Модель Телефона
+item_interface=Интерфейс
+item_text_input=Исходный текст
+item_output=Форматирование
+item_plugin=Плагины
+
+menu_rotation=Поворот экрана
+item_rotation_0=0° По часовой
+item_rotation_90=90° По часовой
+item_rotation_270=270° По часовой
+
+menu_fonts=Шрифты
+item_import_system=Импортировать Системный шрифт
+item_import_palm=Импортировать Palm шрифт
+item_delete=Удалить шрифт
+
+menu_help=Помощь
+item_about=О Программе
+
+window_title=@@PRODUCT@@ @@VERSION@@
+
+close_confirm_title=Внимание!
+close_confirm_message=Вы уверены, что хотите закрыть закладку?
+
+unable_to_open_message=Невозможно открыть указаный файл:
+unable_to_open_title=Невозможно открыть файл

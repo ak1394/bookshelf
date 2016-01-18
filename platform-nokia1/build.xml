@@ -1,0 +1,12 @@
+<project name="nokia1" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.NOKIA40_HOME}/lib/classes.zip" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.NOKIA40_HOME}/lib/classes.zip"/>
+
+        <path id="platform.libs">
+        </path>
+    </target>
+</project>

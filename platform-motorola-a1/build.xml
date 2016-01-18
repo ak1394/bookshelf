@@ -1,0 +1,14 @@
+<project name="motorola-a1" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.MOTOROLA_A1_HOME}/lib/javaextensions.jar" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.WTK_HOME}/lib/cldcapi11.jar"/>
+
+        <path id="platform.libs">
+            <pathelement path="${env.WTK_HOME}/lib/midpapi20.jar"/>
+            <pathelement path="${env.MOTOROLA_A1_HOME}/lib/javaextensions.jar"/>
+        </path>
+    </target>
+</project>

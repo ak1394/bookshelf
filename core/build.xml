@@ -1,0 +1,127 @@
+<project name="bookshelf-core" default="dist" basedir=".">
+    <property environment="env"/>
+    <property name="src.dir" value="src"/>
+    <property name="hyph.dir" value="hyph"/>
+    <property name="test.dir" value="test"/>
+    <property name="fonts.dir" value="fonts"/>
+    <property name="javadoc.dir" value="docs/api"/>
+
+    <property name="build.dir" value="build"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.hyph" value="${build.dir}/hyph"/>
+    <property name="build.fonts" value="${build.dir}/fonts"/>
+	
+    <property name="bcel.jar" value="${env.BCEL_HOME}/bcel-5.1.jar"/>
+    <property name="jython.jar" value="${env.JYTHON_HOME}/jython.jar"/>
+
+    <property name="reader.classes" value="${reader.dir}/build/classes"/>
+
+    <path id="libs-build-classpath">
+        <pathelement path="${reader.classes}"/>
+        <pathelement path="${bcel.jar}"/>
+        <pathelement path="${jython.jar}"/>
+        <pathelement path="${env.ANT_HOME}/lib/ant.jar"/>
+    </path>
+
+    <target name="prepare-common">
+        <fail unless="output.directory">Please set output.directory property</fail>
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.hyph}"/>
+        <mkdir dir="${build.fonts}"/>
+        <mkdir dir="${output.directory}"/>
+    </target>
+
+    <target name="compile" depends="prepare-common">
+        <javac source="1.4" srcdir="${src.dir}" destdir="${build.classes}" debug="${enable_debug}">
+            <classpath refid="libs-build-classpath"/>
+        </javac>
+    </target>
+
+    <target name="javadoc" depends="compile">
+		<javadoc destdir="${javadoc.dir}" source="1.4">
+            <classpath refid="libs-build-classpath"/>
+		    <packageset dir="${src.dir}" defaultexcludes="yes">
+		      <include name="bookshelf/**" />
+		    </packageset>
+    	</javadoc>
+    </target>
+
+    <target name="dist" depends="compile, hyphenation, fonts">
+        <!-- make jar file -->
+    	<mkdir dir="${output.directory}/lib"/>
+        <jar jarfile="${output.directory}/lib/${ant.project.name}.jar">
+            <fileset dir="${build.classes}">
+                <exclude name="bookshelf/anttasks/"/>
+                <exclude name="org/apache/fop/tools/"/>
+            </fileset>
+            <fileset dir="${reader.classes}"/>
+            <zipfileset dir="${build.hyph}" prefix="hyph"/>
+        </jar>
+        <!-- copy fonts -->
+        <copy todir="${output.directory}/fonts">
+            <fileset dir="${build.fonts}"/>
+        </copy>
+
+    	<!-- copy required libaries -->
+    	<copy todir="${output.directory}/lib" file="${bcel.jar}"/>
+        <copy todir="${output.directory}/lib" file="${jython.jar}"/>
+    </target>
+
+    <target name="distclean">
+        <delete dir="${build.dir}"/>
+	</target>
+
+    <target name="clean" depends="distclean">
+        <delete dir="${javadoc.dir}"/>
+	</target>
+
+    <target name="test" depends="dist">
+        <antcall target="test.quick"/>
+    </target>
+
+    <target name="test.quick">
+        <property name="jython.option" value="-v" />
+        <java classname="org.python.util.jython"
+            fork="Yes"
+            failonerror="true">
+            <arg line="${test.dir}\alltests.py ${jython.option} ${output.directory}" />
+            <classpath>
+                <pathelement location="${jython.jar}"/>
+                <pathelement location="${reader.lib}"/>
+                <pathelement location="${output.directory}/lib/${ant.project.name}.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="hyphenation" depends="compile" >
+        <path id="hyph-classpath">
+            <path refid="libs-build-classpath"/>
+            <pathelement location="${build.classes}"/>
+        </path>
+        <taskdef name="serHyph"
+                 classname="org.apache.fop.tools.anttasks.SerializeHyphPattern"
+                 classpathref="hyph-classpath"
+         />
+        <serHyph includes="*.xml"
+                 sourceDir="${hyph.dir}"
+                 targetDir="${build.hyph}"
+                 errorDump="false"
+         />
+    </target>
+
+    <target name="fonts" depends="compile" >
+        <path id="font-classpath">
+            <path refid="libs-build-classpath"/>
+            <pathelement location="${build.classes}"/>
+        </path>
+        <taskdef name="makeFonts"
+                 classname="bookshelf.anttasks.MakeFonts"
+                 classpathref="font-classpath"
+         />
+        <makeFonts includes="*.pft"
+                 sourceDir="${fonts.dir}"
+                 targetDir="${build.fonts}"
+                 encoding="windows-1251"
+         />
+    </target>
+</project>

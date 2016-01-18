@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="/reader"/>
+	<classpathentry kind="var" path="NOKIA40_HOME/lib/classes.zip"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

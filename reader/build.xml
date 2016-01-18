@@ -1,0 +1,166 @@
+<project name="reader" default="dist" basedir=".">
+    <property environment="env"/>
+    <property name="src.dir" value="src"/>
+    <property name="resource.dir" value="resources"/>
+    <property name="build.dir" value="build"/>
+	<property name="javadoc.dir" value="docs/api"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="verified.dir"  value="${build.dir}/verified"/>
+    <property name="obfuscated.dir"  value="${build.dir}/obfuscated"/>
+    
+
+    <!-- check if the project has already been built -->
+    <target name="check-if-built">
+        <uptodate property="already.built"
+                  targetfile="${output.target}"
+         >
+            <srcfiles dir="${src.dir}" includes="**/*"/>
+            <srcfiles dir="${resource.dir}" includes="**/*"/>
+            <srcfiles dir="${build.dir}" includes="**/*"/>
+        </uptodate>
+    </target>
+    
+    <!-- check if the required libraries are available -->
+    <target name="required-libraries-check">
+        <!-- check for midpapi10.jar -->
+        <available file="${env.WTK_HOME}/lib/midpapi10.jar"
+                   type="file"
+                   property="midpapi10.lib"
+                   value="${env.WTK_HOME}/lib/midpapi10.jar"
+         />
+        <fail unless="midpapi10.lib">Set WTK_HOME to your WTK installation directory. WTK is available at http://java.sun.com/products/j2mewtoolkit/</fail>
+
+        <!-- check for cldcapi10.jar -->
+        <available file="${env.WTK_HOME}/lib/cldcapi10.jar"
+                   type="file"
+                   property="cldcapi10.lib"
+                   value="${env.WTK_HOME}/lib/cldcapi10.jar"
+         />
+        <fail unless="cldcapi10.lib">Can't find cldcapi10.jar in your WTK. Your WTK install may be corrupted.</fail>
+    </target>
+    
+    <target name="prepare-common" depends="required-libraries-check">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${verified.dir}"/>
+        <mkdir dir="${obfuscated.dir}"/>
+    </target>
+
+    <target name="compile" depends="prepare-common">
+        <javac 
+            srcdir="${src.dir}"
+            destdir="${build.classes}" 
+            target="1.1" 
+            bootclasspath="${cldcapi10.lib}"
+            classpath="${midpapi10.lib}"
+            debug="${enable_debug}" 
+        />
+    </target>
+
+    <target name="javadoc" depends="compile">
+		<javadoc 
+			destdir="${javadoc.dir}"
+            bootclasspath="${cldcapi10.lib}"
+            classpath="${midpapi10.lib}"
+			>
+		    <packageset dir="${src.dir}" defaultexcludes="yes">
+		      <include name="reader/**" />
+			  <include name="plugin/**" />
+		    </packageset>
+    	</javadoc>
+    </target>
+
+    <target name="obfuscate" depends="check-if-built,compile" unless="already.built">
+        <antcall target="${obfuscator}"/>
+    </target>
+
+    <target name="preverify" depends="obfuscate" unless="already.built">
+        <unzip src="${build.dir}/${ant.project.name}-post-obfuscated.jar"
+               dest="${obfuscated.dir}"
+         />
+        <exec executable="preverify">
+            <arg line="-classpath '${midpapi10.lib}${path.separator}${cldcapi10.lib}'"/>
+            <arg line="-d ${verified.dir}"/>
+            <arg line="${obfuscated.dir}"/>
+        </exec>
+        <!-- copy resource files -->
+        <copy todir="${verified.dir}/resources">
+            <fileset dir="${resource.dir}" excludes="**/CVS* **/*.class **/.#* **/*.native2ascii"/>
+        </copy>
+        <!-- transform native strings to unicode -->
+    	<native2ascii encoding="windows-1251" src="${resource.dir}" dest="${verified.dir}/resources"
+    		includes="**/*_ru.native2ascii" ext=".properties"/>
+    </target>
+
+    <target name="dist" depends="preverify">
+		<delete dir="${build.classes}/platform"/>
+		<delete dir="${verified.dir}/platform"/>    	
+    	<jar jarfile="${output.target}" basedir="${verified.dir}"/>
+    </target>
+
+    <target name="distclean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="clean" depends="distclean">
+        <delete dir="${javadoc.dir}"/>
+    </target>
+
+    <target name="proguard">
+        <!-- check for proguard.jar -->
+        <available file="${env.PROGUARD_HOME}/lib/proguard.jar"
+                   type="file"
+                   property="proguard.lib"
+                   value="${env.PROGUARD_HOME}/lib/proguard.jar"
+         />
+        <fail unless="proguard.lib">Set PROGUARD_HOME to your Proguard installation directory. Proguard is available at http://proguard.sourceforge.net/</fail>
+		<!-- define proguard task -->
+
+        <taskdef name="proguard"
+                 classname="proguard.ant.ProGuardTask"
+                 classpath="${proguard.lib}"
+         />
+		<proguard 
+				verbose="on"
+				shrink="off"
+				overloadaggressively="off"
+				ignorewarnings="off"
+                optimize="off"
+				printmapping="${build.dir}/${ant.project.name}-proguard.map"
+				>
+			<libraryjar name="${midpapi10.lib}"/>
+			<libraryjar name="${cldcapi10.lib}"/>
+			<injar name="${build.classes}"/>
+            <outjar name="${build.dir}/${ant.project.name}-post-obfuscated.jar"/>
+
+			<keep name="reader.Engine">
+				<field name="bookTitle"/>
+				<field name="pluginList"/>
+				<field name="canvasWidth"/>
+				<field name="canvasHeight"/>
+				<field name="cacheSize"/>
+				<field name="blockSize"/>
+				<field name="magic"/>
+				<field name="rotation"/>
+			</keep>
+
+			<keep name="font.PlatformRenderer0"/>
+			<keep name="font.PlatformRenderer90"/>
+			<keep name="font.PlatformRenderer270"/>
+
+			<keep name="plugin.*.Plugin">
+				<field name="aI_*"/>
+			</keep>
+		</proguard>
+    </target>
+
+    <target name="empty">
+        <jar jarfile="${build.dir}/${ant.project.name}-pre-obfuscated.jar"
+             basedir="${build.classes}"
+         />
+        <copy 
+            file="${build.dir}/${ant.project.name}-pre-obfuscated.jar" 
+            tofile="${build.dir}/${ant.project.name}-post-obfuscated.jar"
+        />
+    </target>
+</project>

@@ -1,0 +1,31 @@
+# Main form
+source_title=Параметры текста
+result_title=Результат
+preview_title=Область просмотра
+
+# Result
+name=Название
+font=Шрифт
+interline_spacing=Межстрочное расстояние
+source_para_start=Начало параграфа
+justify=Выравнивать текст
+hyphenate=Расставлять переносы
+screen_border=Отступ слева
+select_background_color=Выбрать цвет фона
+select_foreground_color=Выбрать цвет шрифта
+color_background=Цвет фона
+color_foreground=Цвет шрифта
+
+# Source
+language=Язык
+encoding=Кодировка
+result_para_start=Отступ параграфа
+
+# Preview
+up=Вверх
+down=Вниз
+preview=Просмотр
+
+# error message
+save_noname_title=Ошибка!
+save_noname_message=Нет названия для книги!

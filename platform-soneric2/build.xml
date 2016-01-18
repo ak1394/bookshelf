@@ -1,0 +1,14 @@
+<project name="soneric2" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.SONERIC2_HOME}/lib/midpapi20.jar" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.SONERIC2_HOME}/lib/cldcapi11.jar"/>
+
+        <path id="platform.libs">
+            <pathelement path="${env.SONERIC2_HOME}/lib/midpapi20.jar"/>
+            <pathelement path="${env.SONERIC2_HOME}/lib/nokiaext.jar"/>
+        </path>
+    </target>
+</project>

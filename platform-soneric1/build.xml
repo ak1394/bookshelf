@@ -1,0 +1,12 @@
+<project name="soneric1" default="dist" basedir=".">
+    <import file="../platform.xml"/>
+
+    <target name="check-requirements">
+        <available file="${env.SONERIC1_HOME}/semc_api.zip" type="file" property="requirements-ok"/>
+
+        <property name="platform.bootlib" value="${env.SONERIC1_HOME}/semc_api.zip"/>
+
+        <path id="platform.libs">
+        </path>
+    </target>
+</project>

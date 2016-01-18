@@ -1,0 +1,156 @@
+<project name="bookshelf" default="dist" basedir=".">
+    <property name="dest.dir" value="dist"/>
+    <property name="enable_debug" value="true"/>
+    <!-- empty or proguard -->
+    <property name="obfuscator" value="empty"/>
+
+     <!-- subprojects -->
+    <property name="reader.dir" value="reader"/>
+    <property name="core.dir" value="core"/>
+    <property name="gui.dir" value="gui"/>
+    <property name="misc.dir" value="misc"/>
+
+    <target name="prepare">
+        <mkdir dir="${dest.dir}"/>
+        <mkdir dir="${dest.dir}/platform"/>
+        <mkdir dir="${dest.dir}/lib"/>
+    </target>
+
+    <target name="all-platforms-do">
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="midp1"/>
+        </antcall>
+        
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="midp2"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="soneric1"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="soneric2"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="nokia1"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="siemens"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="siemens-bw"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="motorola-a1"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="samsung1"/>
+        </antcall>
+
+        <antcall target="${platform-task}">
+            <param name="platform-name" value="samsung2"/>
+        </antcall>
+    </target>
+
+    <target name="platform-dist">
+        <echo message="Building platform: ${platform-name}"/>
+
+        <ant dir="platform-${platform-name}" target="dist">
+            <property name="output.target" value="${basedir}/${dest.dir}/platform/${platform-name}.jar"/>
+            <property name="reader.dir" value="${basedir}/${reader.dir}"/>
+        </ant>
+    </target>
+
+    <target name="platform-clean">
+        <echo message="Cleaning platform: ${platform-name}"/>
+
+        <ant dir="platform-${platform-name}" target="clean"/>
+    </target>
+
+    <target name="dist" depends="prepare">
+        <!-- build bookshelf reader -->
+        <ant dir="${reader.dir}" target="dist">
+            <property name="output.target" value="../${dest.dir}/lib/bookshelf-reader.jar"/>
+        </ant>
+
+        <!--build platforms-->
+        <antcall target="all-platforms-do">
+            <param name="platform-task" value="platform-dist"/>
+        </antcall>
+
+        <!-- build core -->
+        <ant dir="${core.dir}" target="dist">
+            <property name="output.directory" value="../${dest.dir}"/>
+            <property name="reader.dir" value="${basedir}/${reader.dir}"/>
+        </ant>
+
+        <!-- build gui -->
+        <ant dir="${gui.dir}" target="dist">
+            <property name="output.directory" value="../${dest.dir}"/>
+            <property name="reader.dir" value="${basedir}/${reader.dir}"/>
+        </ant>
+
+        <!-- misc -->
+        <copy todir="${dest.dir}">
+            <fileset dir="${misc.dir}" excludes="**/CVS* **/*.class **/.#*"/>
+        </copy>
+    </target>
+
+    <target name="test" depends="dist">
+        <!-- test core -->
+        <ant dir="${core.dir}" target="test">
+            <property name="output.directory" value="../${dest.dir}"/>
+            <property name="reader.dir" value="${basedir}/${reader.dir}"/>
+        </ant>
+    </target>
+
+    <target name="test.quick">
+        <!-- test core -->
+        <ant dir="${core.dir}" target="test.quick">
+            <property name="output.directory" value="../${dest.dir}"/>
+            <property name="reader.dir" value="${basedir}/${reader.dir}"/>
+        </ant>
+    </target>
+
+    <target name="javadoc">
+        <!-- reader -->
+        <ant dir="${reader.dir}" target="javadoc"/>
+        <!-- core -->
+        <ant dir="${core.dir}" target="javadoc">
+            <property name="output.directory" value="../${dest.dir}"/>
+            <property name="reader.dir" value="${basedir}/${reader.dir}"/>
+        </ant>
+    </target>
+
+    <target name="distclean">
+        <!-- clean reader platform -->
+        <ant dir="${reader.dir}" target="distclean"/>
+        <!-- clean core -->
+        <ant dir="${core.dir}" target="distclean"/>
+
+        <!--build platforms-->
+        <antcall target="all-platforms-do">
+            <param name="platform-task" value="platform-clean"/>
+        </antcall>
+    </target>
+
+    <target name="clean" depends="distclean">
+        <!-- clean reader platform -->
+        <ant dir="${reader.dir}" target="clean"/>
+
+        <!-- clean core -->
+        <ant dir="${core.dir}" target="clean"/>
+
+        <!-- clean gui -->
+        <ant dir="${gui.dir}" target="clean"/>
+
+        <!-- delete dest directory -->
+        <delete dir="${dest.dir}"/>
+    </target>
+</project>

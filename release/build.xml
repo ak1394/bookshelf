@@ -1,0 +1,112 @@
+<project name="bookshelf-release" default="release">
+    <property name="bookshelf.name" value="Mobile Bookshelf"/>
+    <property name="bookshelf.version" value="2.1.5"/>
+    <property name="bookshelf.base" value="bookshelf"/>
+
+    <property name="reader.dir" value="reader"/>
+    <property name="core.dir" value="core"/>
+    <property name="gui.dir" value="gui"/>
+    <property name="misc.dir" value="misc"/>
+
+    <property name="build.src" value="${bookshelf.base}-${bookshelf.version}-src"/>
+    <property name="build.bin" value="${bookshelf.base}-${bookshelf.version}"/>
+
+    <import file="../build.xml"/>
+
+    <target name="platform-copy">
+        <copy todir="${build.src}/platform-${platform-name}">
+            <fileset dir="../platform-${platform-name}" excludes="**/CVS* **/.* **/*.class"/>
+        </copy>
+    </target>
+
+    <target name="build-daily">
+        <tstamp/>
+        <antcall target="release">
+            <param name="build.src" value="${bookshelf.base}-${DSTAMP}-src"/>
+            <param name="build.bin" value="${bookshelf.base}-${DSTAMP}"/>
+        </antcall>
+    </target>
+
+    <target name="clean-daily">
+        <tstamp/>
+        <antcall target="clean">
+            <param name="build.src" value="${bookshelf.base}-${DSTAMP}-src"/>
+            <param name="build.bin" value="${bookshelf.base}-${DSTAMP}"/>
+        </antcall>
+    </target>
+
+    <target name="release">
+        <mkdir dir="${build.src}"/>
+        <!-- copy src files -->
+        <copy todir="${build.src}/${core.dir}">
+            <fileset dir="../${core.dir}" excludes="**/CVS* **/.* **/*.class"/>
+        </copy>
+
+        <copy todir="${build.src}/${reader.dir}">
+            <fileset dir="../${reader.dir}" excludes="**/CVS* **/.* **/*.class"/>
+        </copy>
+
+        <copy todir="${build.src}/${gui.dir}">
+            <fileset dir="../${gui.dir}" excludes="**/CVS* **/.* **/*.class"/>
+        </copy>
+
+        <copy todir="${build.src}/${misc.dir}">
+            <fileset dir="../${misc.dir}" excludes="**/CVS* **/.* **/*.class **/*.sh **/*.bat"/>
+        </copy>
+
+        <fixcrlf srcdir="../${misc.dir}" destdir="${build.src}/${misc.dir}" eol="unix" includes="**/*.sh"/>
+        <fixcrlf srcdir="../${misc.dir}" destdir="${build.src}/${misc.dir}" eol="dos" includes="**/*.bat"/>
+
+        <!-- copy platform sources-->
+        <antcall target="all-platforms-do">
+            <param name="platform-task" value="platform-copy"/>
+        </antcall>
+
+        <copy file="../build.xml" todir="${build.src}"/>
+        <copy file="../platform.xml" todir="${build.src}"/>
+
+        <!-- substitute tokens as needed -->
+        <replace dir="${build.src}" excludes="**/*.png **/*.pft">
+            <replacefilter token="@@PRODUCT@@" value="${bookshelf.name}"/>
+            <replacefilter token="@@VERSION@@" value="${bookshelf.version}"/>
+            <replacefilter token="@@COPYRIGHT@@" value="2005 Mobile Bookshelf Development Team"/>
+            <replacefilter token="@@DESCRIPTION@@" value="Mobile Bookshelf ${bookshelf.version} an e-text reader for J2ME devices"/>
+            <replacefilter token="@@URL@@" value="http://bookshelf.sourceforge.net"/>
+        </replace>
+
+        <!-- invoke build -->
+        <ant dir="${build.src}" target="dist">
+            <property name="dest.dir" value="../${build.bin}"/>
+            <property name="enable_debug" value="false"/>
+            <property name="obfuscator" value="proguard"/>
+        </ant>
+
+        <!-- javadocs -->
+        <ant dir="${build.src}" target="javadoc">
+            <property name="dest.dir" value="../${build.bin}"/>
+        </ant>
+
+        <!-- clean up source build -->
+        <ant dir="${build.src}" target="distclean"/>
+
+        <!-- misc stuff from release directory -->
+        <copy file="LICENSE" todir="${build.src}"/>
+        <copy file="LICENSE" todir="${build.bin}"/>
+
+        <!-- package binary and source releases -->
+        <zip destfile="${build.bin}.zip">
+            <zipfileset dir="${build.bin}" prefix="${build.bin}"/>
+        </zip>
+
+        <zip destfile="${build.src}.zip">
+            <zipfileset dir="${build.src}" prefix="${build.src}"/>
+        </zip>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.src}"/>
+        <delete dir="${build.bin}"/>
+        <delete file="${build.src}.zip"/>
+        <delete file="${build.bin}.zip"/>
+    </target>
+</project>

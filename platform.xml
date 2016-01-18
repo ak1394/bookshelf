@@ -1,0 +1,123 @@
+<project>
+    <property environment="env"/>
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.verified" value="${build.dir}/verified"/>
+    <property name="build.obfuscated" value="${build.dir}/obfuscated"/>
+    <property name="resources" value="resources"/>
+    <property name="output.target" value="${ant.project.name}.jar"/>
+    <property name="reader.classes" value="${reader.dir}/build/classes"/>
+    <property name="reader.obfuscated" value="${reader.dir}/build/reader-post-obfuscated.jar"/>
+    <property name="reader.proguard.map" value="${reader.dir}/build/reader-proguard.map"/>
+
+    <target name="check-if-built">
+        <uptodate property="already.built"
+                  targetfile="${output.target}"
+         >
+            <srcfiles dir="${src.dir}" includes="**/*"/>
+            <srcfiles dir="${resources}" includes="**/*"/>
+        </uptodate>
+    </target>
+    
+    <target name="prepare" depends="check-requirements" if="requirements-ok">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.verified}"/>
+        <mkdir dir="${build.obfuscated}"/>
+    </target>
+    
+    <target name="compile" depends="prepare" unless="already.built">
+        <echo message="Boot Class library found in: ${platform.bootlib}"/>
+        <echo message="Building ${ant.project.name} platform."/>
+        <javac 
+            srcdir="${src.dir}"
+            destdir="${build.classes}" 
+            target="1.1" 
+            bootclasspath="${platform.bootlib}"
+            debug="${enable_debug}" 
+        >
+            <classpath>
+                <path refid="platform.libs"/>
+                <pathelement path="${reader.classes}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="obfuscate" depends="compile" unless="already.built">
+        <antcall target="${obfuscator}"/>
+    </target>
+
+    <target name="preverify" depends="obfuscate" unless="already.built">
+        <pathconvert property="preverify.classpath" pathsep="${path.separator}">
+            <path>
+                <pathelement path="${platform.bootlib}"/>
+                <path refid="platform.libs"/>
+                <pathelement path="${reader.obfuscated}"/>
+            </path>
+        </pathconvert>
+        <unzip src="${build.dir}/${ant.project.name}-post-obfuscated.jar" dest="${build.obfuscated}"/>
+        <exec executable="${env.WTK_HOME}/bin/preverify">
+            <arg line="-classpath '${preverify.classpath}'"/>
+            <arg line="-d ${build.verified}"/>
+            <arg line="${build.obfuscated}"/>
+        </exec>
+    </target>
+
+    <target name="dist" depends="check-if-built,preverify">
+        <!-- copy in platform properties -->
+        <copy todir="${build.verified}">
+            <fileset dir="${resources}"/>
+        </copy>
+        <jar jarfile="${output.target}" basedir="${build.verified}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="proguard">
+        <!-- check for proguard.jar -->
+        <available file="${env.PROGUARD_HOME}/lib/proguard.jar"
+            type="file"
+            property="proguard.lib"
+            value="${env.PROGUARD_HOME}/lib/proguard.jar"
+         />
+        <fail unless="proguard.lib">Set PROGUARD_HOME to your Proguard installation directory. Proguard is available at http://proguard.sourceforge.net/</fail>
+        <!-- define proguard task -->
+        <taskdef name="proguard"
+                 classname="proguard.ant.ProGuardTask"
+                 classpath="${proguard.lib}"
+         />
+        <proguard 
+            applymapping="${reader.proguard.map}"
+            printmapping="${build.dir}/${ant.project.name}-proguard.map"            
+            verbose="on"
+            shrink="off"
+            overloadaggressively="off"
+            optimize="off"
+            ignorewarnings="off"
+            >
+            
+            <libraryjar name="${platform.bootlib}"/>
+            <libraryjar refid="platform.libs"/>
+
+            <injar name="${reader.classes}"/>
+            <injar name="${build.classes}"/>
+
+            <outjar filter="platform/**" name="${build.dir}/${ant.project.name}-post-obfuscated.jar"/>
+
+            <keep name="platform.PlatformCanvas"/>
+        </proguard>
+    </target>
+    
+    <target name="empty">
+        <jar jarfile="${build.dir}/${ant.project.name}-pre-obfuscated.jar"
+             basedir="${build.classes}"
+         />
+        <copy 
+            file="${build.dir}/${ant.project.name}-pre-obfuscated.jar" 
+            tofile="${build.dir}/${ant.project.name}-post-obfuscated.jar"
+        />
+    </target>
+</project>
